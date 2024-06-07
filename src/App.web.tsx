@@ -14,6 +14,7 @@ import {MessagesProvider} from '#/state/messages'
 import {init as initPersistedState} from '#/state/persisted'
 import {Provider as LabelDefsProvider} from '#/state/preferences/label-defs'
 import {Provider as ModerationOptsProvider} from '#/state/preferences/moderation-opts'
+import {useHighSaturationEnabled} from '#/state/preferences/saturation' // Importación de los hooks necesarios saturación
 import {readLastActiveAccount} from '#/state/session/util'
 import {useIntentHandler} from 'lib/hooks/useIntentHandler'
 import {QueryProvider} from 'lib/react-query'
@@ -52,6 +53,9 @@ function InnerApp() {
   const {_} = useLingui()
   useIntentHandler()
 
+  // Hook para la saturación
+  const highSaturationEnabled = useHighSaturationEnabled()
+
   // init
   useEffect(() => {
     async function onLaunch(account?: SessionAccount) {
@@ -79,6 +83,7 @@ function InnerApp() {
   if (!isReady) return null
 
   return (
+    //Aplica filtro para la saturación
     <KeyboardProvider enabled={false}>
       <Alf theme={theme}>
         <ThemeProvider theme={theme}>
@@ -86,28 +91,34 @@ function InnerApp() {
             <React.Fragment
               // Resets the entire tree below when it changes:
               key={currentAccount?.did}>
-              <QueryProvider currentDid={currentAccount?.did}>
-                <StatsigProvider>
-                  <MessagesProvider>
-                    {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
-                    <LabelDefsProvider>
-                      <ModerationOptsProvider>
-                        <LoggedOutViewProvider>
-                          <SelectedFeedProvider>
-                            <UnreadNotifsProvider>
-                              <BackgroundNotificationPreferencesProvider>
-                                <SafeAreaProvider>
-                                  <Shell />
-                                </SafeAreaProvider>
-                              </BackgroundNotificationPreferencesProvider>
-                            </UnreadNotifsProvider>
-                          </SelectedFeedProvider>
-                        </LoggedOutViewProvider>
-                      </ModerationOptsProvider>
-                    </LabelDefsProvider>
-                  </MessagesProvider>
-                </StatsigProvider>
-              </QueryProvider>
+              <div
+                style={{
+                  filter: highSaturationEnabled ? 'saturate(8)' : 'none',
+                  flex: 1,
+                }}>
+                <QueryProvider currentDid={currentAccount?.did}>
+                  <StatsigProvider>
+                    <MessagesProvider>
+                      {/* LabelDefsProvider MUST come before ModerationOptsProvider */}
+                      <LabelDefsProvider>
+                        <ModerationOptsProvider>
+                          <LoggedOutViewProvider>
+                            <SelectedFeedProvider>
+                              <UnreadNotifsProvider>
+                                <BackgroundNotificationPreferencesProvider>
+                                  <SafeAreaProvider>
+                                    <Shell />
+                                  </SafeAreaProvider>
+                                </BackgroundNotificationPreferencesProvider>
+                              </UnreadNotifsProvider>
+                            </SelectedFeedProvider>
+                          </LoggedOutViewProvider>
+                        </ModerationOptsProvider>
+                      </LabelDefsProvider>
+                    </MessagesProvider>
+                  </StatsigProvider>
+                </QueryProvider>
+              </div>
             </React.Fragment>
             <ToastContainer />
           </RootSiblingParent>
