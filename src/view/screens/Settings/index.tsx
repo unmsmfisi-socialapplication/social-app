@@ -68,6 +68,8 @@ import {Email2FAToggle} from './Email2FAToggle'
 import {ExportCarDialog} from './ExportCarDialog'
 import hairlineWidth = StyleSheet.hairlineWidth
 
+import {useColorScheme} from 'react-native'
+
 function SettingsAccountCard({
   account,
   pendingDid,
@@ -187,6 +189,12 @@ export function SettingsScreen({}: Props) {
   const birthdayControl = useDialogControl()
   const {pendingDid, onPressSwitchAccount} = useAccountSwitcher()
   const isSwitchingAccounts = !!pendingDid
+
+  const colorScheme = useColorScheme();
+  var identifyMode
+  if(colorMode === 'system' && colorScheme === 'dark'){
+    identifyMode = 1
+  }
 
   // const primaryBg = useCustomPalette<ViewStyle>({
   //   light: {backgroundColor: colors.blue0},
@@ -459,7 +467,34 @@ export function SettingsScreen({}: Props) {
 
         <View style={styles.spacer20} />
 
-        {colorMode !== 'light' && (
+        {colorMode === 'dark' && (
+          <>
+            <Text type="xl-bold" style={[pal.text, styles.heading]}>
+              <Trans>Dark Theme</Trans>
+            </Text>
+            <View>
+              <View style={[styles.linkCard, pal.view, styles.selectableBtns]}>
+                <SelectableBtn
+                  selected={!darkTheme || darkTheme === 'dim'}
+                  label={_(msg`Dim`)}
+                  left
+                  onSelect={() => setDarkTheme('dim')}
+                  accessibilityHint={_(msg`Sets dark theme to the dim theme`)}
+                />
+                <SelectableBtn
+                  selected={darkTheme === 'dark'}
+                  label={_(msg`Dark`)}
+                  right
+                  onSelect={() => setDarkTheme('dark')}
+                  accessibilityHint={_(msg`Sets dark theme to the dark theme`)}
+                />
+              </View>
+            </View>
+            <View style={styles.spacer20} />
+          </>
+        )}
+
+        {identifyMode == 1 && (
           <>
             <Text type="xl-bold" style={[pal.text, styles.heading]}>
               <Trans>Dark Theme</Trans>
