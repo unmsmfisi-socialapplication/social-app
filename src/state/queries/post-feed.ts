@@ -48,6 +48,7 @@ type ListUri = string
 
 export type FeedDescriptor =
   | 'following'
+  | 'media'
   | `author|${ActorDid}|${AuthorFilter}`
   | `feedgen|${FeedUri}`
   | `likes|${ActorDid}`

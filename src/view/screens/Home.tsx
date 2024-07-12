@@ -22,14 +22,17 @@ import {useSelectedFeed, useSetSelectedFeed} from '#/state/shell/selected-feed'
 import {useOTAUpdates} from 'lib/hooks/useOTAUpdates'
 import {HomeTabNavigatorParams, NativeStackScreenProps} from 'lib/routes/types'
 import {FeedPage} from 'view/com/feeds/FeedPage'
+import {MediaFeedPage} from 'view/com/feeds/MediaFeedPage' // Importar el nuevo componente
 import {Pager, PagerRef, RenderTabBarFnProps} from 'view/com/pager/Pager'
 import {CustomFeedEmptyState} from 'view/com/posts/CustomFeedEmptyState'
 import {FollowingEmptyState} from 'view/com/posts/FollowingEmptyState'
 import {FollowingEndOfFeed} from 'view/com/posts/FollowingEndOfFeed'
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
 import {HomeHeader} from '../com/home/HomeHeader'
+//import { AppBskyActorDefs , AppBskyFeedDefs} from '@atproto/api';
 
 type Props = NativeStackScreenProps<HomeTabNavigatorParams, 'Home'>
+
 export function HomeScreen(props: Props) {
   const {data: preferences} = usePreferencesQuery()
   const {data: pinnedFeedInfos, isLoading: isPinnedFeedsLoading} =
@@ -74,9 +77,6 @@ function HomeScreenReady({
   const pagerRef = React.useRef<PagerRef>(null)
   const lastPagerReportedIndexRef = React.useRef(selectedIndex)
   React.useLayoutEffect(() => {
-    // Since the pager is not a controlled component, adjust it imperatively
-    // if the selected index gets out of sync with what it last reported.
-    // This is supposed to only happen on the web when you use the right nav.
     if (selectedIndex !== lastPagerReportedIndexRef.current) {
       lastPagerReportedIndexRef.current = selectedIndex
       pagerRef.current?.setPage(selectedIndex, 'desktop-sidebar-click')
@@ -116,8 +116,6 @@ function HomeScreenReady({
       const listener = AppState.addEventListener('change', nextAppState => {
         if (nextAppState === 'active') {
           if (isMobile && mode.value === 1) {
-            // Reveal the bottom bar so you don't miss notifications or messages.
-            // TODO: Experiment with only doing it when unread > 0.
             setMinimalShellMode(false)
           }
         }
@@ -202,6 +200,11 @@ function HomeScreenReady({
     }
   }, [preferences])
 
+  // Función para filtrar publicaciones con media
+  const filterPostsWithMedia = (posts: any[]) => {
+    return posts.filter(post => post.media && post.media.length > 0)
+  }
+
   return hasSession ? (
     <Pager
       key={allFeeds.join(',')}
@@ -225,6 +228,18 @@ function HomeScreenReady({
                 feedParams={homeFeedParams}
                 renderEmptyState={renderFollowingEmptyState}
                 renderEndOfFeed={FollowingEndOfFeed}
+              />
+            )
+          } else if (feed === 'media') {
+            return (
+              <MediaFeedPage
+                key={feed}
+                testID="mediaFeedPage"
+                isPageFocused={selectedFeed === feed}
+                feed={feed}
+                feedParams={homeFeedParams}
+                renderEmptyState={renderCustomFeedEmptyState}
+                filterPosts={filterPostsWithMedia}
               />
             )
           }

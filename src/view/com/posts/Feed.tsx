@@ -71,6 +71,7 @@ let Feed = ({
   ListHeaderComponent,
   extraData,
   savedFeedConfig,
+  filterPosts, // New prop
 }: {
   feed: FeedDescriptor
   feedParams?: FeedParams
@@ -90,6 +91,7 @@ let Feed = ({
   ListHeaderComponent?: () => JSX.Element
   extraData?: any
   savedFeedConfig?: AppBskyActorDefs.SavedFeed
+  filterPosts?: (posts: any[]) => any[] // New filterPosts prop
 }): React.ReactNode => {
   const theme = useTheme()
   const {track} = useAnalytics()
@@ -221,8 +223,10 @@ let Feed = ({
     } else {
       arr.push(LOADING_ITEM)
     }
-    return arr
-  }, [isFetched, isError, isEmpty, data, feedUri])
+
+    // Apply filter to feed items if provided
+    return filterPosts ? filterPosts(arr) : arr
+  }, [isFetched, isError, isEmpty, data, feedUri, filterPosts])
 
   // events
   // =

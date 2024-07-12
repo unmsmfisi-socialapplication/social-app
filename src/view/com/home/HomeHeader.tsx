@@ -32,11 +32,21 @@ export function HomeHeader(
 
   const items = React.useMemo(() => {
     const pinnedNames = feeds.map(f => f.displayName)
-    if (!hasPinnedCustom) {
-      return pinnedNames.concat('Feeds ✨')
+    const updatedItems = [...pinnedNames]
+
+    // Check if "Media" should be added as a tab
+    const hasMedia = feeds.some(tab => tab.uri === 'media')
+    if (hasMedia) {
+      updatedItems.push('Media')
     }
-    return pinnedNames
-  }, [hasPinnedCustom, feeds])
+
+    // Optionally add "Feeds" tab if not already included
+    if (!hasPinnedCustom) {
+      updatedItems.push('Feeds ✨')
+    }
+
+    return updatedItems
+  }, [feeds, hasPinnedCustom])
 
   const onPressFeedsLink = React.useCallback(() => {
     if (isWeb) {
@@ -49,13 +59,17 @@ export function HomeHeader(
 
   const onSelect = React.useCallback(
     (index: number) => {
-      if (!hasPinnedCustom && index === items.length - 1) {
+      // Navigate to "Feeds" or handle custom logic for other tabs
+      if (index === items.length - 1 && items[index] === 'Feeds ✨') {
         onPressFeedsLink()
+      } else if (items[index] === 'Media') {
+        navigation.navigate('Feeds')
+        navigation.popToTop() // Optionally reset stack to the top
       } else if (props.onSelect) {
         props.onSelect(index)
       }
     },
-    [items.length, onPressFeedsLink, props, hasPinnedCustom],
+    [items, onPressFeedsLink, navigation, props],
   )
 
   return (
