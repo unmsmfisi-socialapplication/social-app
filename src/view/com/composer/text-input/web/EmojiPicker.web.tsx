@@ -1,6 +1,7 @@
 import React from 'react'
 import Picker from '@emoji-mart/react'
 import {
+  GestureResponderEvent,
   StyleSheet,
   TouchableWithoutFeedback,
   useWindowDimensions,
@@ -95,11 +96,15 @@ export function EmojiPicker({state, close}: IProps) {
   }
 
   if (!state.isOpen) return null
+  const onPresET = (e: GestureResponderEvent) => {
+    if (e.nativeEvent && e.nativeEvent.pointerId === -1) return
+    close()
+  }
 
   return (
     <TouchableWithoutFeedback
       accessibilityRole="button"
-      onPress={close}
+      onPress={onPresET}
       accessibilityViewIsModal>
       <View style={styles.mask}>
         {/* eslint-disable-next-line react-native-a11y/has-valid-accessibility-descriptors */}
