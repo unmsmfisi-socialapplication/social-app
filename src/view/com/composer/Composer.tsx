@@ -116,7 +116,7 @@ export const ComposePost = observer(function ComposePost({
   const {closeComposer} = useComposerControls()
   const {track} = useAnalytics()
   const pal = usePalette('default')
-  const {isTabletOrDesktop, isMobile} = useWebMediaQueries()
+  const {isTabletOrDesktop} = useWebMediaQueries()
   const {_} = useLingui()
   const requireAltTextEnabled = useRequireAltTextEnabled()
   const langPrefs = useLanguagePrefs()
@@ -224,10 +224,11 @@ export const ComposePost = observer(function ComposePost({
 
   const onNewLink = useCallback(
     (uri: string) => {
+      if (quote) return
       if (extLink != null) return
       setExtLink({uri, isLoading: true})
     },
-    [extLink, setExtLink],
+    [quote, extLink, setExtLink],
   )
 
   const onPhotoPasted = useCallback(
@@ -591,7 +592,7 @@ export const ComposePost = observer(function ComposePost({
               onSelectGif={onSelectGif}
               disabled={hasMedia}
             />
-            {!isMobile ? (
+            {isWeb && (
               <Button
                 onPress={onEmojiButtonPress}
                 style={a.p_sm}
@@ -602,7 +603,7 @@ export const ComposePost = observer(function ComposePost({
                 color="primary">
                 <EmojiSmile size="lg" />
               </Button>
-            ) : null}
+            )}
           </View>
           <View style={a.flex_1} />
           <SelectLangBtn />
