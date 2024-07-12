@@ -1,21 +1,21 @@
-import React from 'react'
-import {View} from 'react-native'
-import {msg, Trans} from '@lingui/macro'
-import {useLingui} from '@lingui/react'
+import React, { useState } from 'react'
+import { View } from 'react-native'
+import { msg, Trans } from '@lingui/macro'
+import { useLingui } from '@lingui/react'
 
-import {logger} from '#/logger'
-import {ScreenTransition} from '#/screens/Login/ScreenTransition'
-import {is13, is18, useSignupContext} from '#/screens/Signup/state'
-import {Policies} from '#/screens/Signup/StepInfo/Policies'
-import {atoms as a} from '#/alf'
+import { logger } from '#/logger'
+import { ScreenTransition } from '#/screens/Login/ScreenTransition'
+import { is13, is18, useSignupContext } from '#/screens/Signup/state'
+import { Policies } from '#/screens/Signup/StepInfo/Policies'
+import { atoms as a } from '#/alf'
 import * as DateField from '#/components/forms/DateField'
-import {FormError} from '#/components/forms/FormError'
-import {HostingProvider} from '#/components/forms/HostingProvider'
+import { FormError } from '#/components/forms/FormError'
+import { HostingProvider } from '#/components/forms/HostingProvider'
 import * as TextField from '#/components/forms/TextField'
-import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
-import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
-import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
-import {Loader} from '#/components/Loader'
+import { Envelope_Stroke2_Corner0_Rounded as Envelope } from '#/components/icons/Envelope'
+import { Lock_Stroke2_Corner0_Rounded as Lock } from '#/components/icons/Lock'
+import { Ticket_Stroke2_Corner0_Rounded as Ticket } from '#/components/icons/Ticket'
+import { Loader } from '#/components/Loader'
 
 function sanitizeDate(date: Date): Date {
   if (!date || date.toString() === 'Invalid Date') {
@@ -30,6 +30,142 @@ function sanitizeDate(date: Date): Date {
 export function StepInfo() {
   const {_} = useLingui()
   const {state, dispatch} = useSignupContext()
+  
+  const validDomains = [
+    'gmail.com',
+    'hotmail.com',
+    'yahoo.com',
+    'outlook.com',
+    'icloud.com',
+    'aol.com',
+    'mail.com',
+    'zoho.com',
+    'protonmail.com',
+    'yandex.com',
+    'gmx.com',
+    'live.com',
+    'fastmail.com',
+    'inbox.com',
+    'mail.ru',
+    'tutanota.com',
+    'cox.net',
+    'att.net',
+    'verizon.net',
+    'earthlink.net',
+    'rocketmail.com',
+    'optonline.net',
+    'sbcglobal.net',
+    'me.com',
+    'msn.com',
+    'mailinator.com',
+    'runbox.com',
+    'mail2world.com',
+    'rambler.ru',
+    'mail.ru',
+    'yopmail.com',
+    't-online.de',
+    'bluewin.ch',
+    'gmx.de',
+    'libero.it',
+    'web.de',
+    'rediffmail.com',
+    'bol.com.br',
+    'terra.com.br',
+    'yahoo.com.br',
+    'uol.com.br',
+    'ig.com.br',
+    'hotmail.co.uk',
+    'gmail.co.uk',
+    'yahoo.co.uk',
+    'btinternet.com',
+    'virginmedia.com',
+    'ntlworld.com',
+    'orange.fr',
+    'sfr.fr',
+    'free.fr',
+    'wanadoo.fr',
+    'laposte.net',
+    'hotmail.fr',
+    'gmail.fr',
+    'yahoo.fr',
+    'hotmail.es',
+    'gmail.es',
+    'yahoo.es',
+    'terra.es',
+    'libero.it',
+    'hotmail.it',
+    'gmail.it',
+    'yahoo.it',
+    'alice.it',
+    'live.nl',
+    'hotmail.nl',
+    'gmail.nl',
+    'yahoo.nl',
+    'ziggo.nl',
+    'telenet.be',
+    'hotmail.be',
+    'gmail.be',
+    'yahoo.be',
+    'skynet.be',
+    'mail.be',
+    'live.com.au',
+    'hotmail.com.au',
+    'gmail.com.au',
+    'yahoo.com.au',
+    'bigpond.com',
+    'iinet.net.au',
+    'optusnet.com.au',
+    'yahoo.co.in',
+    'hotmail.co.in',
+    'gmail.co.in',
+    'rediffmail.com',
+    'yahoo.co.id',
+    'hotmail.co.id',
+    'gmail.co.id',
+    'yahoo.co.jp',
+    'hotmail.co.jp',
+    'gmail.co.jp',
+    'yahoo.co.kr',
+    'hotmail.co.kr',
+    'gmail.co.kr',
+    'yahoo.co.nz',
+    'hotmail.co.nz',
+    'gmail.co.nz',
+    'yahoo.co.za',
+    'hotmail.co.za',
+    'gmail.co.za',
+    'yahoo.com.mx',
+    'hotmail.com.mx',
+    'gmail.com.mx',
+    'yahoo.com.ph',
+    'hotmail.com.ph',
+    'gmail.com.ph',
+    'yahoo.com.sg',
+    'hotmail.com.sg',
+    'gmail.com.sg',
+    'yahoo.se',
+    'hotmail.se',
+    'gmail.se'
+  ];
+
+  function isValidEmailDomain(email: string): boolean {
+    const domain = email.split('@')[1];
+    return validDomains.includes(domain);
+  }
+
+  const [emailIsValid, setEmailIsValid] = useState(true);
+
+  const handleEmailChange = (value: string) => {
+    dispatch({ type: 'setEmail', value: value.trim() });
+
+    if (value.includes('@')) {
+      setEmailIsValid(isValidEmailDomain(value));
+    } else {
+      setEmailIsValid(true); // o false, dependiendo de tu lógica de validación
+    }
+  };
+
+  console.log('Email is valid:', emailIsValid);  // mostrar en console
 
   return (
     <ScreenTransition>
@@ -42,7 +178,7 @@ export function StepInfo() {
           <HostingProvider
             serviceUrl={state.serviceUrl}
             onSelectServiceUrl={v =>
-              dispatch({type: 'setServiceUrl', value: v})
+              dispatch({ type: 'setServiceUrl', value: v })
             }
           />
         </View>
@@ -83,12 +219,7 @@ export function StepInfo() {
                 <TextField.Icon icon={Envelope} />
                 <TextField.Input
                   testID="emailInput"
-                  onChangeText={value => {
-                    dispatch({
-                      type: 'setEmail',
-                      value: value.trim(),
-                    })
-                  }}
+                  onChangeText={handleEmailChange}
                   label={_(msg`Enter your email address`)}
                   defaultValue={state.email}
                   autoCapitalize="none"
@@ -139,6 +270,7 @@ export function StepInfo() {
               serviceDescription={state.serviceDescription}
               needsGuardian={!is18(state.dateOfBirth)}
               under13={!is13(state.dateOfBirth)}
+              verificatorEmail={emailIsValid}
             />
           </>
         ) : undefined}
